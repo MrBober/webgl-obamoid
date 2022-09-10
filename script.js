@@ -32,26 +32,26 @@ var indices = [
 
 const textureCoordinates = [
     // Bottom
-    0.5,  0.5,
-    1.0,  0.5,
-    1.0,  0.0,
-    0.5,  0.0,
+    0.51,  0.49,
+    0.99,  0.49,
+    0.99,  0.01,
+    0.51,  0.01,
     // Back
-    0.5,  0.0,
-    0.0,  0.0,
-    0.25,  0.5,
+    0.49,  0.01,
+    0.01,  0.01,
+    0.25,  0.49,
     // Left
-    1.0,  0.5,
-    0.5,  0.5,
-    0.75,  1.0,
+    0.99,  0.51,
+    0.51,  0.51,
+    0.75,  0.99,
     // Front
-    0.5,  0.5,
-    0.0,  0.5,
-    0.25,  1.0,
+    0.49,  0.51,
+    0.01,  0.51,
+    0.25,  0.99,
     // Right
-    0.5,  0.5,
-    1.0,  0.5,
-    0.75,  1.0,
+    0.51,  0.51,
+    0.99,  0.51,
+    0.75,  0.99,
 ];
 
 // Create and store data into vertex buffer
@@ -249,11 +249,20 @@ function rotateX(m, angle) {
 }
 
 // Drawing
-
 var last = 0;
+//var lastRand = 0;
+//var random = [1,1,1];
 
 function loop(now) {
     var time = now-last;
+    //lastRand += time;
+    //if (lastRand > 2000) {
+    //    random = [Math.random(), Math.random(), Math.random()];
+    //    lastRand = 0;
+    //}
+    //rotateX(modelMatrix, time*0.001*random[0]);
+    //rotateY(modelMatrix, time*0.001*random[1]);
+    //rotateZ(modelMatrix, time*0.001*random[2]);
     rotateY(modelMatrix, time*0.001);
     last = now;
 
