@@ -138,26 +138,27 @@ gl.linkProgram(shaderProgram);
 // Vertex shader attributes
 //
 
-var modelMatrix = gl.getUniformLocation(shaderProgram, "uModelMatrix");
-var vertexMatrix = gl.getUniformLocation(shaderProgram, "uVertexMatrix");
-var projectionMatrix = gl.getUniformLocation(shaderProgram, "uProjectionMatrix");
-var uSampler = gl.getUniformLocation(shaderProgram, "uSampler");
+var modelMatrixLocation = gl.getUniformLocation(shaderProgram, "uModelMatrix");
+var vertexMatrixLocation = gl.getUniformLocation(shaderProgram, "uVertexMatrix");
+var projectionMatrixLocation = gl.getUniformLocation(shaderProgram, "uProjectionMatrix");
+var uSamplerLocation = gl.getUniformLocation(shaderProgram, "uSampler");
 
+// Vertices
 gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
 var vertexPosition = gl.getAttribLocation(shaderProgram, "aVertexPosition");
 gl.vertexAttribPointer(vertexPosition, 3, gl.FLOAT, false,0,0) ;
-
-// Position
 gl.enableVertexAttribArray(vertexPosition);
+
+// Texture
 gl.bindBuffer(gl.ARRAY_BUFFER, textureCoordBuffer);
 var textureCoord = gl.getAttribLocation(shaderProgram, "aTextureCoord");
 gl.vertexAttribPointer(textureCoord, 2, gl.FLOAT, false , 0, 0) ;
-
-// Texture
 gl.enableVertexAttribArray(textureCoord);
+
+// Bind texture
 gl.activeTexture(gl.TEXTURE0);
 gl.bindTexture(gl.TEXTURE_2D, texture);
-gl.uniform1i(uSampler, 0);
+gl.uniform1i(uSamplerLocation, 0);
 
 // Select program
 gl.useProgram(shaderProgram);
@@ -166,7 +167,7 @@ gl.useProgram(shaderProgram);
 // Matrices
 //
 
-function get_projection(angle, a, zMin, zMax) {
+function get3DProjection(angle, a, zMin, zMax) {
     var ang = Math.tan((angle*.5)*Math.PI/180);//angle*.5
     return [
         0.5/ang, 0 , 0, 0,
@@ -176,22 +177,48 @@ function get_projection(angle, a, zMin, zMax) {
     ];
 }
 
+function get2DProjection(width, height, depth, scale) {
+    var max = Math.max(width, height);
+    return [
+        scale*height/max, 0, 0, 0,
+        0, scale*width/max, 0, 0,
+        0, 0, 1 / depth, 0,
+        0, 0, 0, 1,
+    ];
+}
 
-var proj_matrix = get_projection(40, canvas.width/canvas.height, 1, 10);
 
-var mov_matrix = [1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1];
-var view_matrix = [1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1];
+//var projectionMatrix = get2DProjection(canvas.width, canvas.height, 10, 0.5);
+var projectionMatrix = get3DProjection(40, canvas.width/canvas.height, 1, 10);
+
+var modelMatrix = [1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1];
+var viewMatrix = [1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1];
 
 // Translating Z
-view_matrix[14] = view_matrix[14]-3;//zoom
+viewMatrix[14] = viewMatrix[14]-3;
 
 // Moving the camera
-mov_matrix[13] = mov_matrix[13] + 0.4;
-rotateX(view_matrix, 0.3)
+modelMatrix[13] = modelMatrix[13] + 0.3;
+//rotateX(viewMatrix, 0.3)
 
 //  
 // Rotation 
 //
+
+function rotateZ(m, angle) {
+    var c = Math.cos(angle);
+    var s = Math.sin(angle);
+    var mv0 = m[0], mv4 = m[4], mv8 = m[8];
+
+    m[0] = c*m[0]-s*m[1];
+    m[4] = c*m[4]-s*m[5];
+    m[8] = c*m[8]-s*m[9];
+
+    m[1]=c*m[1]+s*mv0;
+    m[5]=c*m[5]+s*mv4;
+    m[9]=c*m[9]+s*mv8;
+}
+
 
 function rotateY(m, angle) {
     var c = Math.cos(angle);
@@ -227,7 +254,7 @@ var last = 0;
 
 function loop(now) {
     var time = now-last;
-    rotateY(mov_matrix, time*0.001);
+    rotateY(modelMatrix, time*0.001);
     last = now;
 
     gl.clearColor(0.0, 0.0, 0.0, 0.0);
@@ -238,9 +265,9 @@ function loop(now) {
     gl.depthFunc(gl.LEQUAL);
 
     gl.viewport(0.0, 0.0, canvas.width, canvas.height);
-    gl.uniformMatrix4fv(projectionMatrix, false, proj_matrix);
-    gl.uniformMatrix4fv(vertexMatrix, false, view_matrix);
-    gl.uniformMatrix4fv(modelMatrix, false, mov_matrix);
+    gl.uniformMatrix4fv(projectionMatrixLocation, false, projectionMatrix);
+    gl.uniformMatrix4fv(vertexMatrixLocation, false, viewMatrix);
+    gl.uniformMatrix4fv(modelMatrixLocation, false, modelMatrix);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
     gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
 
