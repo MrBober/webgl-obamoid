@@ -167,11 +167,12 @@ gl.useProgram(shaderProgram);
 // Matrices
 //
 
-function get3DProjection(angle, a, zMin, zMax) {
+function get3DProjection(angle, width, height, zMin, zMax) {
     var ang = Math.tan((angle*.5)*Math.PI/180);//angle*.5
+    var max = Math.max(width, height);
     return [
-        0.5/ang, 0 , 0, 0,
-        0, 0.5*a/ang, 0, 0,
+        (0.5/ang)*(height/max), 0 , 0, 0,
+        0, (0.5/ang)*(width/max), 0, 0,
         0, 0, -(zMax+zMin)/(zMax-zMin), -1,
         0, 0, (-2*zMax*zMin)/(zMax-zMin), 0 
     ];
@@ -189,7 +190,7 @@ function get2DProjection(width, height, depth, scale) {
 
 
 //var projectionMatrix = get2DProjection(canvas.width, canvas.height, 10, 0.5);
-var projectionMatrix = get3DProjection(40, canvas.width/canvas.height, 1, 10);
+var projectionMatrix = get3DProjection(40, canvas.width, canvas.height, 1, 10);
 
 var modelMatrix = [1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1];
 var viewMatrix = [1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1];
