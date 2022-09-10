@@ -90,7 +90,7 @@ function loadTexture(gl, url) {
     return texture;
 }
 
-const texture = loadTexture(gl, './obamoid.png');
+const texture = loadTexture(gl, window.location.href + 'obamoid.png');
 gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 
 //
