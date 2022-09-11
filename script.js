@@ -183,7 +183,7 @@ function get2DProjection(width, height, depth, scale) {
     return [
         scale*height/max, 0, 0, 0,
         0, scale*width/max, 0, 0,
-        0, 0, 1 / depth, 0,
+        0, 0, -1 / depth, 0,
         0, 0, 0, 1,
     ];
 }
